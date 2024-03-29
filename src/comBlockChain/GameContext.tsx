@@ -103,8 +103,19 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
   const startGame = async () => {
     if (contract) {
       try {
+
+        const EtatGame = await contract.etatPartie();
+        console.log("avant commence",EtatGame);
+
         const tx = await contract.commencerPartie();
         await tx.wait(); // Attendre que la transaction soit confirmée
+
+
+        const EtatGame2 = await contract.etatPartie();
+        console.log("apres commence",EtatGame2);
+
+
+
         setGameState("EnCours"); // Mettre à jour l'état du jeu comme étant en cours
       } catch (error) {
         console.error("Erreur lors du démarrage du jeu :", error);
@@ -148,7 +159,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
   const verifyCurrentPlayer = async () => {
     if (contract) {
       try {
-        const currentPlayer = await contract.estLeJoueurCourant();
+        const currentPlayer = await contract.getJoueurCourant();
         return currentPlayer;
       } catch (error) {
         console.error("Failed to verify current player:", error);

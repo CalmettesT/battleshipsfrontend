@@ -23,17 +23,34 @@ export default function PlayGame({
 }) {
   ////////////////
   const navigate = useNavigate();
-  const { verifyCurrentPlayer, gameStarted, verifyPlayer2, verifyPlayer1, getHistoryOfAttacks, verifyIfGameWon } = useGame();
+  const { verifyCurrentPlayer, gameStarted, verifyPlayer2, verifyPlayer1, getHistoryOfAttacks, verifyIfGameWon, verifyIfGameStarted } = useGame();
   const [acurrentPlayer, setaCurrentPlayer] = useState<string>("");
   const [host, setHost] = useState<string>("");
   const [guest, setGuest] = useState<string>("");
   const [attackHistory, setAttackHistory] = useState<Coord[]>([]);
   const [isGameWon, setIsGameWon] = useState<boolean>(false);
+  const [isGameStart, setIsGameStart] = useState<boolean>(false);
 
   const fetchCurrentPlayer = async () => {
     const player = await verifyCurrentPlayer();
     setaCurrentPlayer(player);
+    
   };
+
+  const fetchIsGameStarted = async () => {
+    const gamestate = await verifyIfGameStarted();
+    setIsGameStart(gamestate);
+    console.log(isGameStart);
+  }
+////////////////////////////////////////////////////////faire demain en propre/////////////////////////////////////////////////////
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      fetchIsGameStarted();
+    }, 1000); // Exécute fetchIsGameStarted toutes les 1 000 millisecondes (1 seconde)
+  
+    return () => clearInterval(intervalId); // Nettoyage de l'intervalle lors du démontage du composant
+  }, []); // Les crochets vides indiquent que cet effet ne s'exécute qu'une fois, après le premier rendu.
+  
 
   useEffect(() => {
     fetchCurrentPlayer();
@@ -43,7 +60,12 @@ export default function PlayGame({
     verifyPlayer1().then((result) => {
       setHost(result || "");
     });
+
+    fetchIsGameStarted();
+
+    console.log(acurrentPlayer);
   }, [gameStarted]);
+  
   ////////////////
   const [gameOver, setGameOver] = useState(false);
   const [nbSunks, setNbSunks] = useState(0);
@@ -152,7 +174,7 @@ export default function PlayGame({
           {host} : {opponentSpeech}
         </span>
       </div>
-      {gameStarted ? (
+      {isGameStart ? (
         <>
       <Game
         myGrid={myGrid}
